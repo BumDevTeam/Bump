@@ -1,4 +1,4 @@
-package com.example.bump.ui.theme
+package com.example.bump.View.theme
 
 import android.app.Activity
 import android.os.Build
