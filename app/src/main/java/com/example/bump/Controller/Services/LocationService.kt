@@ -4,10 +4,14 @@ import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
+import android.os.Build
 import android.os.IBinder
+import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import com.example.bump.Controller.LocationHandlers.DefaultLocationClient
 import com.example.bump.Controller.LocationHandlers.LocationClient
+import com.example.bump.R
 import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -33,6 +37,7 @@ class LocationService: Service() {
         )
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when(intent?.action){
             ACTION_START -> start()
@@ -41,11 +46,13 @@ class LocationService: Service() {
         return super.onStartCommand(intent, flags, startId)
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     private fun start()
     {
         val notifi = NotificationCompat.Builder(this, "location")
             .setContentTitle("Tracking")
             .setContentText("Location: null")
+            .setSmallIcon(R.drawable.ic_launcher_background)
             .setOngoing(true)
 
         val notifiManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -61,7 +68,7 @@ class LocationService: Service() {
             }
             .launchIn(serviceScope)
 
-        startForeground(1, notifi.build())
+        startForeground(1, notifi.build(), FOREGROUND_SERVICE_TYPE_LOCATION)
     }
 
     private fun stop()
