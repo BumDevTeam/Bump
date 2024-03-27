@@ -17,7 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import com.example.bump.Controller.Services.LocationService
-import com.example.bump.View.Files.HomeScreen
 import com.example.bump.View.theme.BumpTheme
 
 class MainActivity : ComponentActivity() {
@@ -35,7 +34,27 @@ class MainActivity : ComponentActivity() {
         )
         setContent {
             BumpTheme {
-                HomeScreen(mainActivity = this)
+                Column(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Button(onClick = {
+                        Intent(applicationContext, LocationService::class.java).apply{
+                            action = LocationService.ACTION_START
+                            startService(this)
+                        }
+                    }) {
+                        Text(text = "Start")
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(onClick = {
+                        Intent(applicationContext, LocationService::class.java).apply{
+                            action = LocationService.ACTION_STOP
+                            startService(this)
+                        }
+                    }) {
+                        Text(text = "Stop")
+                    }
+                }
 
             }
 
