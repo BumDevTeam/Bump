@@ -1,3 +1,7 @@
+import java.util.Properties
+
+
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
@@ -6,6 +10,13 @@ plugins {
 android {
     namespace = "com.example.bump"
     compileSdk = 34
+
+    buildFeatures {
+        compose = true
+        buildFeatures {
+            buildConfig = true
+        }
+    }
 
     defaultConfig {
         applicationId = "com.example.bump"
@@ -18,6 +29,10 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        val properties = Properties()
+        properties.load(project.rootProject.file("local.properties").inputStream())
+        buildConfigField("String", "KEY_LOCATION", properties.getProperty("KEY_LOCATION"))
     }
 
     buildTypes {
@@ -33,9 +48,7 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
-    buildFeatures {
-        compose = true
-    }
+
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
     }
@@ -44,6 +57,8 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
+
 }
 
 dependencies {
@@ -57,6 +72,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.play.services.location)
+    implementation(libs.play.services.maps)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

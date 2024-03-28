@@ -13,10 +13,8 @@ abstract class AndroidSensor(
 ): MeasurableSensor(sensorType), SensorEventListener {
     override val doesExist: Boolean
         get() = context.packageManager.hasSystemFeature(sensorFeature)
-
     private lateinit var sensorManager: SensorManager
     private var sensor: Sensor? = null
-
     override fun startListening() {
         if(!doesExist){
             return
@@ -31,7 +29,6 @@ abstract class AndroidSensor(
 
         }
     }
-
     override fun stopListening() {
         if(!doesExist || !::sensorManager.isInitialized)
         {
