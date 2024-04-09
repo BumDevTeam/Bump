@@ -19,10 +19,14 @@ import androidx.core.app.ActivityCompat
 import com.example.bump.Controller.Services.LocationService
 import com.example.bump.View.theme.BumpTheme
 
-class MainActivity : ComponentActivity() {
+class MainActivity : ComponentActivity(){
+
+
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+
         ActivityCompat.requestPermissions(
             this,
             arrayOf(
@@ -61,4 +65,5 @@ class MainActivity : ComponentActivity() {
 
         }
     }
+
 }
