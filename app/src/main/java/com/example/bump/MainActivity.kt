@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
@@ -26,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import com.example.bump.Controller.Services.LocationService
+import com.example.bump.View.Files.HomeScreen
 import com.example.bump.View.MapActivity
 import com.example.bump.View.theme.BlackTransparent
 import com.example.bump.View.theme.BumpTheme
@@ -36,20 +38,7 @@ class MainActivity : ComponentActivity(){
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun onCreate(savedInstanceState: Bundle?) {
 
-        //var mapActivity = MapActivity()
-
-        //mapActivity.startActivity(Intent(this, MapActivity::class.java))
-
-       // val intent = Intent(this, MapActivity::class.java)
-
-
         super.onCreate(savedInstanceState)
-
-        //  Intent for creating map activity
-
-
-
-
 
         ActivityCompat.requestPermissions(
             this,
@@ -63,55 +52,17 @@ class MainActivity : ComponentActivity(){
         setContent {
 
             BumpTheme {
-
-
-                    Column(modifier = Modifier
-                        .fillMaxSize()
-                        .background(BlackTransparent),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center) {
-
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize(0.5f)
-                                .background(Color.White),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-
-
-                        ) {
-                            Text(text = "Bump",
-                                fontSize = 30.sp)
-
-                            Spacer(modifier = Modifier.height(50.dp))
-
-                            Button(onClick = {
-                                finish()
-                            }) {
-                                Text(text = "Start")
-                            }
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Button(onClick = {
-                                Intent(applicationContext, LocationService::class.java).apply{
-                                    action = LocationService.ACTION_STOP
-                                    startService(this)
-                                }
-                            }) {
-                                Text(text = "Stop")
-                            }
-                        }
-                    }
-
-
-
-
-
-
-
+                HomeScreen(mainActivity = this)
             }
 
-
         }
+    }
+
+
+    // With this fun user cant go inside mapActivity with using back button
+    @Override
+    override fun onBackPressed() {
+        Toast.makeText(this, "Click start", Toast.LENGTH_SHORT).show()
     }
 
 }
