@@ -15,7 +15,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.bump.Controller.Services.LocationService
@@ -58,6 +57,7 @@ fun HomeScreen(mainActivity: MainActivity)
 fun startButton(mainActivity: MainActivity)
 {
     Button(onClick = {
+
         Intent(mainActivity.applicationContext, LocationService::class.java).apply{
             action = LocationService.ACTION_START
             mainActivity.startService(this)}
