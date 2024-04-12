@@ -1,11 +1,13 @@
 package com.example.bump.View
 
 import android.Manifest
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.FragmentActivity
+import com.example.bump.MainActivity
 import com.example.bump.R
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -19,6 +21,7 @@ class MapActivity: FragmentActivity(), OnMapReadyCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.mapfragment)
+        val intent = Intent(this, MainActivity::class.java)
 
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as? SupportMapFragment
         mapFragment?.getMapAsync(this)
@@ -32,6 +35,8 @@ class MapActivity: FragmentActivity(), OnMapReadyCallback {
             ),
             0
         )
+
+        startActivity(intent)
 
     }
 

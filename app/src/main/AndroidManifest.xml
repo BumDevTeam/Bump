@@ -33,7 +33,7 @@
             android:value="@integer/google_play_services_version" />
         <activity
 
-            android:name=".MainActivity"
+            android:name=".View.MapActivity"
             android:exported="true"
             android:theme="@style/Theme.Bump">
             <intent-filter>
@@ -41,6 +41,9 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".MainActivity" android:theme="@style/Theme.Transparent">
         </activity>
     </application>
 
