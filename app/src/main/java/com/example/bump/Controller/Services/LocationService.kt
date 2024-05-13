@@ -5,6 +5,7 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
+import android.os.Binder
 import android.os.Build
 import android.os.IBinder
 import androidx.annotation.RequiresApi
@@ -20,13 +21,15 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import java.util.Random
 
 class LocationService: Service() {
+
+    var latCor: Double = 0.0
+    var longCor: Double = 0.0
+
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private lateinit var locationClient: LocationClient
-    override fun onBind(intent: Intent?): IBinder? {
-        return null
-    }
 
     override fun onCreate()
     {
@@ -63,6 +66,8 @@ class LocationService: Service() {
             .onEach { location ->
                 val lat = location.latitude.toString()
                 val long = location.longitude.toString()
+                latCor = location.latitude
+                longCor = location.longitude
                 val updated = notifi.setContentText("Location: ($lat, $long)")
                 notifiManager.notify(1, updated.build())
             }
@@ -82,9 +87,38 @@ class LocationService: Service() {
         serviceScope.cancel()
     }
 
+    public fun getLocX(): Double
+    {
+        return latCor
+    }
+
+    public fun getLocY(): Double
+    {
+        return longCor
+    }
+
 
     companion object{
         const val ACTION_START = "ACTION_START"
         const val ACTION_STOP = "ACTION_STOP"
+    }
+
+    // Binder given to clients.
+    private val binder = LocalBinder()
+
+    // Random number generator.
+    private val mGenerator = Random()
+
+    /**
+     * Class used for the client Binder. Because we know this service always
+     * runs in the same process as its clients, we don't need to deal with IPC.
+     */
+    inner class LocalBinder : Binder() {
+        // Return this instance of LocalService so clients can call public methods.
+        fun getService(): LocationService = this@LocationService
+    }
+
+    override fun onBind(intent: Intent): IBinder {
+        return binder
     }
 }

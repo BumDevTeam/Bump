@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.bump.Controller.Services.LocationService
 import com.example.bump.MainActivity
+import com.example.bump.View.MapActivity
 import com.example.bump.View.theme.BlackTransparent
 
 @Composable

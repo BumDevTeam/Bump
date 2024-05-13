@@ -2,6 +2,7 @@ package com.example.bump
 
 import android.Manifest
 import android.content.Intent
+import android.hardware.SensorManager
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
@@ -62,6 +63,7 @@ class MainActivity : ComponentActivity(){
     // With this fun user cant go inside mapActivity with using back button
     @Override
     override fun onBackPressed() {
+        super.onBackPressed()
         Toast.makeText(this, "Click start", Toast.LENGTH_SHORT).show()
     }
 
