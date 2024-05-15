@@ -78,7 +78,7 @@ android {
 
 
 }
-val ktor_version: String by project
+
 dependencies {
 
 
@@ -100,9 +100,5 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-    implementation("io.ktor:ktor-client-core:$ktor_version")
-    implementation("io.ktor:ktor-client-cio:$ktor_version")
-    implementation("io.ktor:ktor-server-content-negotiation:$ktor_version")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
-
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
 }

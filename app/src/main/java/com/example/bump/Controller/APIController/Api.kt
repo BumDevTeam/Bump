@@ -1,100 +1,131 @@
 package com.example.bump.Controller.APIController
 
-import android.location.Location
-import android.util.Log
-import io.ktor.client.HttpClient
-import io.ktor.client.call.body
-import io.ktor.client.engine.cio.CIO
-import io.ktor.client.plugins.ClientRequestException
-import io.ktor.client.plugins.ServerResponseException
-import io.ktor.client.request.get
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.client.statement.HttpResponse
-import io.ktor.http.ContentType
-import io.ktor.http.contentType
-import org.json.JSONObject
-import java.util.concurrent.TimeoutException
-import io.ktor.server.application.*
-import io.ktor.server.plugins.contentnegotiation.*
-import io.ktor.serialization.kotlinx.json.*
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.Response
+import okio.IOException
+
+
+//          ____________usage______________
+
+//val api = Api()
+//
+//        api.getAll { response ->
+//            Log.i("NUHUH!", response)
+//        }
+//        api.addEntry("4.87167","4.654014","6.66")
+//        {
+//                response ->  Log.i("YEAH!", response)
+//        }
+//        api.getNearby("5.87167","5.654014")
+//        {
+//            response ->  Log.i("MICHAL!", response)
+//        }
 
 
 class Api {
 
+    private val client = OkHttpClient()
 
-     suspend fun getAll():String
-    {
+    fun getAll(callback: (String) -> Unit) {
+        var ret = ""
+        val request = Request.Builder()
+            .url("https://bumpserver.fly.dev/api/entry")
+            .build()
 
-        val  client = HttpClient(CIO)
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                e.printStackTrace()
+                callback("")
+            }
 
-        val response: HttpResponse = client.get("https://bumpserver.fly.dev/api/entry")
-        val values: String = response.body()
-        Log.d("GET ALL response",values)
-        client.close()
-
-        return ""
-    }
-
-     suspend fun getNearby(longitude:String, latitude:String):String
-    {
-
-        try {
-
-            fun Application.module() {
-                install(ContentNegotiation) {
-                    json()
+            override fun onResponse(call: Call, response: Response)   {
+                response.use {
+                    if (!response.isSuccessful) throw IOException("Unexpected code $response")
+                    ret =  response.body!!.string()
+                    callback(ret)
                 }
             }
-
-            val  client = HttpClient(CIO)
-
-
-
-            val rootObject= JSONObject()
-            rootObject.put("longitude",longitude)
-            rootObject.put("latitude",latitude)
-
-            val response: HttpResponse = client.post("https://bumpserver.fly.dev/api/entry/getNearby") {
-                setBody(rootObject) //TODO JSON BODY FIX
-                contentType(ContentType.Application.Json)
-            }
-            val values: String = response.body()
-            Log.d("GET NEARBY response",values)
-            Log.d("JSON BODY:",rootObject.toString())
-            client.close()
-
-
-
-        } catch (e: ClientRequestException ) {
-            Log.d("ERROR!!!", "ClientRequestException ${e.message}")
-        } catch (e:ServerResponseException ) {
-            Log.d("ERROR!!!", "ServerResponseException ${e.message}")
-        } catch (e: TimeoutException) {
-            Log.d("ERROR!!!", "TimeoutException ${e.message}")
-        } catch (e: Exception) {
-            Log.d("ERROR!!!", "Exception ${e.message}")
-        }
-
-
-
-
-
-        return ""
+        })
     }
 
-     suspend fun setLocation(longitude:String, latitude:String, value:String)
+    fun getNearby(longitude: String, latitude:String, callback: (String) -> Unit)
     {
-        val  client = HttpClient(CIO)
-
-        val body = ""
-
-        val response: HttpResponse = client.post("https://bumpserver.fly.dev/api/entry/add") {
-            setBody(body)
+        var ret = ""
+        val json = """
+        {
+            "longitude": "$longitude",
+            "latitude": "$latitude"
         }
-        val values: String = response.body()
-        Log.d("response",values)
-        client.close()
-    }
+         """.trimIndent()
 
+        val requestBody = json.toRequestBody("application/json".toMediaTypeOrNull())
+
+        val request = Request.Builder()
+            .url("https://bumpserver.fly.dev/api/entry/getNearby")
+            .post(requestBody)
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                e.printStackTrace()
+                // Handle failure
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                response.use {
+                    if (!response.isSuccessful) {
+                        // Handle unsuccessful response - there will be not unsuccessful response
+                        callback("")
+                    } else {
+                        // Handle successful response
+                        ret =  response.body!!.string()
+                        callback(ret)
+                    }
+                }
+            }
+        })
+    }
+    fun addEntry(longitude: String, latitude:String,value:String, callback: (String) -> Unit)
+    {
+        var ret = ""
+        val json = """
+        {
+            "longitude": "$longitude",
+            "latitude": "$latitude",
+            "value": "$value"
+        }
+    """.trimIndent()
+
+        val requestBody = json.toRequestBody("application/json".toMediaTypeOrNull())
+
+        val request = Request.Builder()
+            .url("https://bumpserver.fly.dev/api/entry/add")
+            .post(requestBody)
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                e.printStackTrace()
+                // Handle failure - only failure here is you
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                response.use {
+                    if (!response.isSuccessful) {
+                        // Handle unsuccessful response - there will be not unsuccessful response
+                        callback("")
+                    } else {
+                        // Handle successful response
+                        ret =  response.body!!.string()
+                        callback(ret)
+                    }
+                }
+            }
+        })
+    }
 }

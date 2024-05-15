@@ -12,13 +12,11 @@ import android.hardware.SensorManager
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
-import android.util.Log
 import android.view.Window
 import android.view.WindowManager
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.FragmentActivity
-import com.example.bump.Controller.APIController.Api
 import com.example.bump.Controller.Services.LocationService
 import com.example.bump.MainActivity
 import com.example.bump.R
@@ -27,9 +25,6 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-
 
 class MapActivity: FragmentActivity(), OnMapReadyCallback, SensorEventListener {
 
@@ -73,10 +68,6 @@ class MapActivity: FragmentActivity(), OnMapReadyCallback, SensorEventListener {
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as? SupportMapFragment
         mapFragment?.getMapAsync(this)
 
-
-        val api = Api()
-        val yeah = GlobalScope.launch {   api.getAll()}
-        val pawel = GlobalScope.launch {   api.getNearby("5.97167","5.554014")}
         val intent = Intent(this, MainActivity::class.java)
 
         startActivity(intent)
@@ -97,7 +88,7 @@ class MapActivity: FragmentActivity(), OnMapReadyCallback, SensorEventListener {
         if (event != null) {
             if(mBound)
             {
-                Log.d("heh", mService.getLocX().toString())
+
             }
         }
     }
