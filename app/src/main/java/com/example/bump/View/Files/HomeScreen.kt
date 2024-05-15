@@ -1,5 +1,6 @@
 package com.example.bump.View.Files
 
+import android.Manifest
 import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -17,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat
 import com.example.bump.Controller.Services.LocationService
 import com.example.bump.MainActivity
 import com.example.bump.View.MapActivity
@@ -58,10 +60,16 @@ fun HomeScreen(mainActivity: MainActivity)
 fun startButton(mainActivity: MainActivity)
 {
     Button(onClick = {
+        ActivityCompat.requestPermissions(
+            mainActivity,
+            arrayOf(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.FOREGROUND_SERVICE_LOCATION
+            ),
+            0
+        )
 
-        Intent(mainActivity.applicationContext, LocationService::class.java).apply{
-            action = LocationService.ACTION_START
-            mainActivity.startService(this)}
         mainActivity.finish()
     }) {
         Text(text = "Start")

@@ -5,7 +5,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import android.content.pm.ActivityInfo
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -19,6 +18,7 @@ import android.view.WindowManager
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.FragmentActivity
+import com.example.bump.Controller.APIController.Api
 import com.example.bump.Controller.Services.LocationService
 import com.example.bump.MainActivity
 import com.example.bump.R
@@ -27,6 +27,8 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 
 class MapActivity: FragmentActivity(), OnMapReadyCallback, SensorEventListener {
@@ -42,7 +44,7 @@ class MapActivity: FragmentActivity(), OnMapReadyCallback, SensorEventListener {
 
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
             // We've bound to LocalService, cast the IBinder and get LocalService instance.
-            val binder = service as LocationService.LocalBinder
+            val binder = service as LocationService.LocationBinder
             mService = binder.getService()
             mBound = true
         }
@@ -53,9 +55,10 @@ class MapActivity: FragmentActivity(), OnMapReadyCallback, SensorEventListener {
     }
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun onCreate(savedInstanceState: Bundle?) {
+
+
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         super.onCreate(savedInstanceState)
-
         mSensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         // focus in accelerometer
         mAccelerometer = mSensorManager!!.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
@@ -66,23 +69,17 @@ class MapActivity: FragmentActivity(), OnMapReadyCallback, SensorEventListener {
 
 
         setContentView(R.layout.mapfragment)
-        val intent = Intent(this, MainActivity::class.java)
 
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as? SupportMapFragment
         mapFragment?.getMapAsync(this)
 
-        ActivityCompat.requestPermissions(
-            this,
-            arrayOf(
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.FOREGROUND_SERVICE_LOCATION
-            ),
-            0
-        )
+
+        val api = Api()
+        val yeah = GlobalScope.launch {   api.getAll()}
+        val pawel = GlobalScope.launch {   api.getNearby("5.97167","5.554014")}
+        val intent = Intent(this, MainActivity::class.java)
 
         startActivity(intent)
-
     }
 
     override fun onMapReady(p0: GoogleMap) {
@@ -98,7 +95,10 @@ class MapActivity: FragmentActivity(), OnMapReadyCallback, SensorEventListener {
 
     override fun onSensorChanged(event: SensorEvent?) {
         if (event != null) {
-            //TODO: READ EVENT.VALUES[1] WHILE HIGH AND PATH TO DB
+            if(mBound)
+            {
+                Log.d("heh", mService.getLocX().toString())
+            }
         }
     }
 
@@ -115,10 +115,22 @@ class MapActivity: FragmentActivity(), OnMapReadyCallback, SensorEventListener {
 
     override fun onStart() {
         super.onStart()
-        // Bind to LocalService.
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.FOREGROUND_SERVICE_LOCATION
+            ),
+            0
+        )
+        Intent(this, LocationService::class.java).apply{
+            action = LocationService.ACTION_START
+            startService(this)}
         Intent(this, LocationService::class.java).also { intent ->
             bindService(intent, connection, Context.BIND_AUTO_CREATE)
         }
+
     }
 
     override fun onStop() {
