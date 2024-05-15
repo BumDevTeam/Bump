@@ -69,9 +69,7 @@ fun startButton(mainActivity: MainActivity)
             ),
             0
         )
-        Intent(mainActivity.applicationContext, LocationService::class.java).apply{
-            action = LocationService.ACTION_START
-            mainActivity.startService(this)}
+
         mainActivity.finish()
     }) {
         Text(text = "Start")

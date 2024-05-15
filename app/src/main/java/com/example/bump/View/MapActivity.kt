@@ -124,6 +124,9 @@ class MapActivity: FragmentActivity(), OnMapReadyCallback, SensorEventListener {
             ),
             0
         )
+        Intent(this, LocationService::class.java).apply{
+            action = LocationService.ACTION_START
+            startService(this)}
         Intent(this, LocationService::class.java).also { intent ->
             bindService(intent, connection, Context.BIND_AUTO_CREATE)
         }
