@@ -104,16 +104,12 @@ class LocationService: Service() {
     }
 
     // Binder given to clients.
-    private val binder = LocalBinder()
-
-    // Random number generator.
-    private val mGenerator = Random()
-
+    private val binder = LocationBinder()
     /**
      * Class used for the client Binder. Because we know this service always
      * runs in the same process as its clients, we don't need to deal with IPC.
      */
-    inner class LocalBinder : Binder() {
+    inner class LocationBinder : Binder() {
         // Return this instance of LocalService so clients can call public methods.
         fun getService(): LocationService = this@LocationService
     }
