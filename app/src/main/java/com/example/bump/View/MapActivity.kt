@@ -73,20 +73,13 @@ class MapActivity: FragmentActivity(), OnMapReadyCallback, SensorEventListener {
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as? SupportMapFragment
         mapFragment?.getMapAsync(this)
 
-        ActivityCompat.requestPermissions(
-            this,
-            arrayOf(
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.FOREGROUND_SERVICE_LOCATION
-            ),
-            0
-        )
+
         val api = Api()
         val yeah = GlobalScope.launch {   api.getAll()}
         val pawel = GlobalScope.launch {   api.getNearby("5.97167","5.554014")}
+        val intent = Intent(this, MainActivity::class.java)
 
-
+        startActivity(intent)
     }
 
     override fun onMapReady(p0: GoogleMap) {
@@ -122,6 +115,15 @@ class MapActivity: FragmentActivity(), OnMapReadyCallback, SensorEventListener {
 
     override fun onStart() {
         super.onStart()
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.FOREGROUND_SERVICE_LOCATION
+            ),
+            0
+        )
         Intent(this, LocationService::class.java).also { intent ->
             bindService(intent, connection, Context.BIND_AUTO_CREATE)
         }
