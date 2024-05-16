@@ -12,6 +12,7 @@ import android.hardware.SensorManager
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
+import android.util.Log
 import android.view.Window
 import android.view.WindowManager
 import androidx.annotation.RequiresApi
@@ -24,12 +25,18 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 
 class MapActivity: FragmentActivity(), OnMapReadyCallback, SensorEventListener {
 
     private var mSensorManager : SensorManager?= null
     private var mAccelerometer : Sensor?= null
+
+    private var x = 0.0
+    private var y = 0.0
+
+    private var userLocationMarker: Marker? = null
 
     private lateinit var mService: LocationService
     private var mBound: Boolean = false
@@ -74,11 +81,12 @@ class MapActivity: FragmentActivity(), OnMapReadyCallback, SensorEventListener {
     }
 
     override fun onMapReady(p0: GoogleMap) {
-        p0.addMarker(
-            MarkerOptions()
-                .position(LatLng(0.0, 0.0))
-                .title("Marker")
-        )
+
+        userLocationMarker = p0.addMarker(MarkerOptions()
+            .position(LatLng(0.0, 0.0))
+            .title("Marker"))
+
+
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
@@ -88,7 +96,10 @@ class MapActivity: FragmentActivity(), OnMapReadyCallback, SensorEventListener {
         if (event != null) {
             if(mBound)
             {
+                x = mService.getLocX()
+                y = mService.getLocY()
 
+                userLocationMarker!!.position = LatLng(x,y)
             }
         }
     }
@@ -129,4 +140,6 @@ class MapActivity: FragmentActivity(), OnMapReadyCallback, SensorEventListener {
         unbindService(connection)
         mBound = false
     }
+
+
 }
