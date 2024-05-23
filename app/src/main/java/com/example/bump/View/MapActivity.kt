@@ -5,6 +5,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.content.pm.PackageManager
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -15,26 +16,57 @@ import android.os.IBinder
 import android.util.Log
 import android.view.Window
 import android.view.WindowManager
+import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Modifier
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import com.example.bump.Controller.Services.LocationService
 import com.example.bump.MainActivity
 import com.example.bump.R
+import com.example.bump.View.Files.MyMap
+import com.example.bump.View.Files.MyMarker
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.GoogleMapComposable
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
+import com.google.maps.android.compose.rememberCameraPositionState
 
-class MapActivity: FragmentActivity(), OnMapReadyCallback, SensorEventListener {
+
+class MapActivity: FragmentActivity(),  SensorEventListener {
+
+    private val LOCATION_PERMISSION_REQUEST_CODE = 1
 
     private var mSensorManager : SensorManager?= null
     private var mAccelerometer : Sensor?= null
 
-    private var x = 0.0
-    private var y = 0.0
+    private lateinit var googleMap: GoogleMap
+
+
+    var mCenterMarker: Marker? = null
+
+
+    private var x = mutableStateOf(0.0)
+    private var y = mutableStateOf(0.0)
+
+    private var camPos = mutableStateOf(CameraPosition.fromLatLngZoom(LatLng(x.value,y.value),10f))
+
+
+
 
     private var userLocationMarker: Marker? = null
 
@@ -59,6 +91,7 @@ class MapActivity: FragmentActivity(), OnMapReadyCallback, SensorEventListener {
     override fun onCreate(savedInstanceState: Bundle?) {
 
 
+
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         super.onCreate(savedInstanceState)
         mSensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
@@ -69,25 +102,53 @@ class MapActivity: FragmentActivity(), OnMapReadyCallback, SensorEventListener {
             WindowManager.LayoutParams.FLAG_FULLSCREEN,
             WindowManager.LayoutParams.FLAG_FULLSCREEN)
 
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), LOCATION_PERMISSION_REQUEST_CODE)
+        } else {
+            // Permissions already granted, proceed with location updates
+            val application = LocationApp()
+        }
 
-        setContentView(R.layout.mapfragment)
 
-        val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as? SupportMapFragment
-        mapFragment?.getMapAsync(this)
+//        setContentView(R.layout.mapfragment)
+
+        setContent {
+//            val cameraPositionState = rememberCameraPositionState ()
+//
+//            LaunchedEffect(x.value, y.value) {
+//                cameraPositionState.animate(
+//                    update = CameraUpdateFactory.newLatLngZoom(LatLng(x.value, y.value), 40f)
+//                )
+//            }
+//
+//            GoogleMap(
+//                modifier = Modifier.fillMaxSize(),
+//                cameraPositionState = cameraPositionState
+//
+//            )
+//            {
+//                MyMarker(markerPosition = LatLng(x.value,y.value))
+//
+//            }
+
+
+            val cameraPositionState = rememberCameraPositionState ()
+
+            MyMap(position = LatLng(x.value, y.value), camPos = cameraPositionState)
+        }
+
+//        val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as? SupportMapFragment
+//        mapFragment?.getMapAsync(this)
 
         val intent = Intent(this, MainActivity::class.java)
+
+
+
 
         startActivity(intent)
     }
 
-    override fun onMapReady(p0: GoogleMap) {
 
-        userLocationMarker = p0.addMarker(MarkerOptions()
-            .position(LatLng(0.0, 0.0))
-            .title("Marker"))
-
-
-    }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
     }
@@ -96,10 +157,20 @@ class MapActivity: FragmentActivity(), OnMapReadyCallback, SensorEventListener {
         if (event != null) {
             if(mBound)
             {
-                x = mService.getLocX()
-                y = mService.getLocY()
+                x.value = mService.getLocX()
+                y.value = mService.getLocY()
 
-                userLocationMarker!!.position = LatLng(x,y)
+                //userLocationMarker!!.position = LatLng(x,y)
+
+                //setContent {
+                    //MyMarker(markerPosition = LatLng(x,y))
+
+                //}
+
+
+
+
+
             }
         }
     }
