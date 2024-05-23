@@ -49,16 +49,9 @@ import com.google.maps.android.compose.rememberCameraPositionState
 
 class MapActivity: FragmentActivity(),  SensorEventListener {
 
-    private val LOCATION_PERMISSION_REQUEST_CODE = 1
 
     private var mSensorManager : SensorManager?= null
     private var mAccelerometer : Sensor?= null
-
-    private lateinit var googleMap: GoogleMap
-
-
-    var mCenterMarker: Marker? = null
-
 
     private var x = mutableStateOf(0.0)
     private var y = mutableStateOf(0.0)
@@ -90,8 +83,6 @@ class MapActivity: FragmentActivity(),  SensorEventListener {
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun onCreate(savedInstanceState: Bundle?) {
 
-
-
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         super.onCreate(savedInstanceState)
         mSensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
@@ -102,43 +93,12 @@ class MapActivity: FragmentActivity(),  SensorEventListener {
             WindowManager.LayoutParams.FLAG_FULLSCREEN,
             WindowManager.LayoutParams.FLAG_FULLSCREEN)
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), LOCATION_PERMISSION_REQUEST_CODE)
-        } else {
-            // Permissions already granted, proceed with location updates
-            val application = LocationApp()
-        }
-
-
-//        setContentView(R.layout.mapfragment)
-
         setContent {
-//            val cameraPositionState = rememberCameraPositionState ()
-//
-//            LaunchedEffect(x.value, y.value) {
-//                cameraPositionState.animate(
-//                    update = CameraUpdateFactory.newLatLngZoom(LatLng(x.value, y.value), 40f)
-//                )
-//            }
-//
-//            GoogleMap(
-//                modifier = Modifier.fillMaxSize(),
-//                cameraPositionState = cameraPositionState
-//
-//            )
-//            {
-//                MyMarker(markerPosition = LatLng(x.value,y.value))
-//
-//            }
-
 
             val cameraPositionState = rememberCameraPositionState ()
 
             MyMap(position = LatLng(x.value, y.value), camPos = cameraPositionState)
         }
-
-//        val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as? SupportMapFragment
-//        mapFragment?.getMapAsync(this)
 
         val intent = Intent(this, MainActivity::class.java)
 
@@ -159,18 +119,6 @@ class MapActivity: FragmentActivity(),  SensorEventListener {
             {
                 x.value = mService.getLocX()
                 y.value = mService.getLocY()
-
-                //userLocationMarker!!.position = LatLng(x,y)
-
-                //setContent {
-                    //MyMarker(markerPosition = LatLng(x,y))
-
-                //}
-
-
-
-
-
             }
         }
     }
