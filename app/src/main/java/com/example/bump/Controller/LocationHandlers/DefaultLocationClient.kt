@@ -8,7 +8,9 @@ import android.os.Looper
 import com.example.bump.Controller.hasLocationPermission
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.Priority
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -19,7 +21,7 @@ class DefaultLocationClient(
     private val client: FusedLocationProviderClient
 ): LocationClient {
     @SuppressLint("MissingPermission")
-    override fun getLocationUpdate(interval: Long): Flow<Location> {
+    override fun getLocationUpdate(intervalL: Long): Flow<Location> {
         return callbackFlow {
             if(!context.hasLocationPermission())
             {
@@ -31,9 +33,13 @@ class DefaultLocationClient(
             if(!isGpsEnabled && !isNetEnabled)
                 throw LocationClient.LocationException("GPS is disabled!")
 
-            val request = com.google.android.gms.location.LocationRequest.create()
-                .setInterval(interval)
-                .setFastestInterval(interval)
+            val request = com.google.android.gms.location.LocationRequest.create().apply {
+                priority = Priority.PRIORITY_HIGH_ACCURACY
+                interval = intervalL // 0.5 seconds
+                fastestInterval = 200L // 0.2 seconds
+                smallestDisplacement = 0.1f // 0.1 meter
+            }
+
             val locationCallback = object: LocationCallback()
             {
                 override fun onLocationResult(result: LocationResult) {
