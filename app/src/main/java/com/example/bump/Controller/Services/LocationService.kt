@@ -13,7 +13,9 @@ import androidx.core.app.NotificationCompat
 import com.example.bump.Controller.LocationHandlers.DefaultLocationClient
 import com.example.bump.Controller.LocationHandlers.LocationClient
 import com.example.bump.R
+import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -31,13 +33,16 @@ class LocationService: Service() {
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private lateinit var locationClient: LocationClient
 
+
     override fun onCreate()
     {
         super.onCreate()
         locationClient = DefaultLocationClient(
             applicationContext,
             LocationServices.getFusedLocationProviderClient(applicationContext)
+
         )
+
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
@@ -60,7 +65,7 @@ class LocationService: Service() {
 
         val notifiManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         locationClient
-            .getLocationUpdate(10000L)
+            .getLocationUpdate(500L)
             .catch { e ->
                 e.printStackTrace() }
             .onEach { location ->
