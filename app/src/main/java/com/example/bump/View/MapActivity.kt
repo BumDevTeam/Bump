@@ -45,6 +45,10 @@ import com.google.maps.android.compose.GoogleMapComposable
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
+import kotlinx.coroutines.Delay
+import kotlinx.coroutines.delay
+import java.util.Timer
+import java.util.TimerTask
 
 
 class MapActivity: FragmentActivity(),  SensorEventListener {
@@ -52,6 +56,13 @@ class MapActivity: FragmentActivity(),  SensorEventListener {
 
     private var mSensorManager : SensorManager?= null
     private var mAccelerometer : Sensor?= null
+
+    val markersArrayList: ArrayList<LatLng?> =  ArrayList()
+    private var isMarkerAdded: Boolean = true
+    private var markerPeriod: Long = 5000
+    private var timer: Timer = Timer()
+
+    private var i = 10.0
 
     private var x = mutableStateOf(0.0)
     private var y = mutableStateOf(0.0)
@@ -83,6 +94,16 @@ class MapActivity: FragmentActivity(),  SensorEventListener {
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun onCreate(savedInstanceState: Bundle?) {
 
+        timer.schedule(object : TimerTask() {
+            override fun run() {
+                isMarkerAdded = true;
+                Log.d("siema", "Marker jest true")
+                markersArrayList.add(LatLng(i, 0.0))
+                i += 10.0
+
+            }
+        }, 0, markerPeriod)
+
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         super.onCreate(savedInstanceState)
         mSensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
@@ -97,7 +118,7 @@ class MapActivity: FragmentActivity(),  SensorEventListener {
 
             val cameraPositionState = rememberCameraPositionState ()
 
-            MyMap(position = LatLng(x.value, y.value), camPos = cameraPositionState)
+            MyMap(position = LatLng(x.value, y.value), camPos = cameraPositionState, markersArrayList)
         }
 
         val intent = Intent(this, MainActivity::class.java)
@@ -114,7 +135,14 @@ class MapActivity: FragmentActivity(),  SensorEventListener {
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
+
         if (event != null) {
+            if(event.values[1] > 12.0 && isMarkerAdded)
+            {
+                markersArrayList.add(LatLng(mService.getLocX(), mService.getLocY()))
+                isMarkerAdded = false;
+
+            }
             if(mBound)
             {
                 x.value = mService.getLocX()
@@ -158,6 +186,11 @@ class MapActivity: FragmentActivity(),  SensorEventListener {
         super.onStop()
         unbindService(connection)
         mBound = false
+    }
+
+    fun timerTask()
+    {
+        isMarkerAdded = true;
     }
 
 
