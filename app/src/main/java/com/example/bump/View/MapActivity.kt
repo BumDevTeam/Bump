@@ -57,7 +57,7 @@ class MapActivity: FragmentActivity(),  SensorEventListener {
     private var mSensorManager : SensorManager?= null
     private var mAccelerometer : Sensor?= null
 
-    val markersArrayList: ArrayList<LatLng?> =  ArrayList()
+    val markersArrayList = mutableStateOf(listOf<LatLng?>())
     private var isMarkerAdded: Boolean = true
     private var markerPeriod: Long = 5000
     private var timer: Timer = Timer()
@@ -98,7 +98,7 @@ class MapActivity: FragmentActivity(),  SensorEventListener {
             override fun run() {
                 isMarkerAdded = true;
                 Log.d("siema", "Marker jest true")
-                markersArrayList.add(LatLng(i, 0.0))
+                markersArrayList.value = markersArrayList.value + LatLng(i, 0.0)
                 i += 10.0
 
             }
@@ -118,7 +118,7 @@ class MapActivity: FragmentActivity(),  SensorEventListener {
 
             val cameraPositionState = rememberCameraPositionState ()
 
-            MyMap(position = LatLng(x.value, y.value), camPos = cameraPositionState, markersArrayList)
+            MyMap(position = LatLng(x.value, y.value), camPos = cameraPositionState, markersArrayList.value)
         }
 
         val intent = Intent(this, MainActivity::class.java)
@@ -139,7 +139,7 @@ class MapActivity: FragmentActivity(),  SensorEventListener {
         if (event != null) {
             if(event.values[1] > 12.0 && isMarkerAdded)
             {
-                markersArrayList.add(LatLng(mService.getLocX(), mService.getLocY()))
+                markersArrayList.value = markersArrayList.value + LatLng(mService.getLocX(), mService.getLocY())
                 isMarkerAdded = false;
 
             }

@@ -16,7 +16,7 @@ import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
 
 @Composable
-fun MyMap(position: LatLng, camPos: CameraPositionState, markersArrayList: ArrayList<LatLng?>)
+fun MyMap(position: LatLng, camPos: CameraPositionState, markersArrayList: List<LatLng?>)
 {
     MyCamera(pos = position, camPos)
 
