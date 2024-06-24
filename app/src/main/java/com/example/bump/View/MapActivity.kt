@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
+import com.example.bump.Controller.APIController.Api
 import com.example.bump.Controller.Services.LocationService
 import com.example.bump.MainActivity
 import com.example.bump.R
@@ -54,8 +55,10 @@ import java.util.TimerTask
 class MapActivity: FragmentActivity(),  SensorEventListener {
 
 
+    private var api: Api = Api()
     private var mSensorManager : SensorManager?= null
     private var mAccelerometer : Sensor?= null
+
 
     val markersArrayList = mutableStateOf(listOf<LatLng?>())
     private var isMarkerAdded: Boolean = true
@@ -98,8 +101,8 @@ class MapActivity: FragmentActivity(),  SensorEventListener {
             override fun run() {
                 isMarkerAdded = true;
                 Log.d("siema", "Marker jest true")
-                markersArrayList.value = markersArrayList.value + LatLng(i, 0.0)
-                i += 10.0
+//                markersArrayList.value = markersArrayList.value + LatLng(i, 0.0)
+//                i += 10.0
 
             }
         }, 0, markerPeriod)
@@ -136,18 +139,33 @@ class MapActivity: FragmentActivity(),  SensorEventListener {
 
     override fun onSensorChanged(event: SensorEvent?) {
 
-        if (event != null) {
-            if(event.values[1] > 12.0 && isMarkerAdded)
-            {
-                markersArrayList.value = markersArrayList.value + LatLng(mService.getLocX(), mService.getLocY())
-                isMarkerAdded = false;
 
-            }
+
+        if (event != null) {
             if(mBound)
             {
                 x.value = mService.getLocX()
                 y.value = mService.getLocY()
+            if(event.values[1] > 12.0 && isMarkerAdded)
+            {
+
+//                Log.i("olek", x.value.toString())
+//                Log.i("mihal", y.value.toString())
+//                markersArrayList.value = markersArrayList.value + LatLng(mService.getLocX(), mService.getLocY())
+                api.addEntry(x.value.toString(), y.value.toString(), event.values[1].toString())
+                {
+                        response ->  Log.i("Getting", response)
+                }
+                isMarkerAdded = false;
+
+                api.getAll()
+                {
+                        response ->  Log.i("Entering", response)
+                }
             }
+            }
+
+
         }
     }
 
@@ -188,10 +206,6 @@ class MapActivity: FragmentActivity(),  SensorEventListener {
         mBound = false
     }
 
-    fun timerTask()
-    {
-        isMarkerAdded = true;
-    }
 
 
 }

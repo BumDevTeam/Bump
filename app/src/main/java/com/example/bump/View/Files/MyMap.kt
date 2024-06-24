@@ -37,7 +37,7 @@ fun MyMap(position: LatLng, camPos: CameraPositionState, markersArrayList: List<
 
     )
     {
-        MyMarker(markerPosition = position)
+//        MyMarker(markerPosition = position)
 
         BasicMarkersMapContent(markersList = markersArrayList)
 
