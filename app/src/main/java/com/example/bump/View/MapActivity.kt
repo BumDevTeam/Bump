@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
+import com.example.bump.Controller.APIController.Api
 import com.example.bump.Controller.Services.LocationService
 import com.example.bump.MainActivity
 import com.example.bump.R
@@ -45,13 +46,26 @@ import com.google.maps.android.compose.GoogleMapComposable
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
+import kotlinx.coroutines.Delay
+import kotlinx.coroutines.delay
+import java.util.Timer
+import java.util.TimerTask
 
 
 class MapActivity: FragmentActivity(),  SensorEventListener {
 
 
+    private var api: Api = Api()
     private var mSensorManager : SensorManager?= null
     private var mAccelerometer : Sensor?= null
+
+
+    val markersArrayList = mutableStateOf(listOf<LatLng?>())
+    private var isMarkerAdded: Boolean = true
+    private var markerPeriod: Long = 5000
+    private var timer: Timer = Timer()
+
+    private var i = 10.0
 
     private var x = mutableStateOf(0.0)
     private var y = mutableStateOf(0.0)
@@ -83,6 +97,16 @@ class MapActivity: FragmentActivity(),  SensorEventListener {
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun onCreate(savedInstanceState: Bundle?) {
 
+        timer.schedule(object : TimerTask() {
+            override fun run() {
+                isMarkerAdded = true;
+                Log.d("siema", "Marker jest true")
+//                markersArrayList.value = markersArrayList.value + LatLng(i, 0.0)
+//                i += 10.0
+
+            }
+        }, 0, markerPeriod)
+
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         super.onCreate(savedInstanceState)
         mSensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
@@ -97,7 +121,7 @@ class MapActivity: FragmentActivity(),  SensorEventListener {
 
             val cameraPositionState = rememberCameraPositionState ()
 
-            MyMap(position = LatLng(x.value, y.value), camPos = cameraPositionState)
+            MyMap(position = LatLng(x.value, y.value), camPos = cameraPositionState, markersArrayList.value)
         }
 
         val intent = Intent(this, MainActivity::class.java)
@@ -114,12 +138,34 @@ class MapActivity: FragmentActivity(),  SensorEventListener {
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
+
+
+
         if (event != null) {
             if(mBound)
             {
                 x.value = mService.getLocX()
                 y.value = mService.getLocY()
+            if(event.values[1] > 12.0 && isMarkerAdded)
+            {
+
+//                Log.i("olek", x.value.toString())
+//                Log.i("mihal", y.value.toString())
+//                markersArrayList.value = markersArrayList.value + LatLng(mService.getLocX(), mService.getLocY())
+                api.addEntry(x.value.toString(), y.value.toString(), event.values[1].toString())
+                {
+                        response ->  Log.i("Getting", response)
+                }
+                isMarkerAdded = false;
+
+                api.getAll()
+                {
+                        response ->  Log.i("Entering", response)
+                }
             }
+            }
+
+
         }
     }
 
@@ -159,6 +205,7 @@ class MapActivity: FragmentActivity(),  SensorEventListener {
         unbindService(connection)
         mBound = false
     }
+
 
 
 }

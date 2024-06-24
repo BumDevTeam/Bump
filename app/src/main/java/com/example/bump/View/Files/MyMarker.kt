@@ -13,7 +13,7 @@ import com.google.maps.android.compose.rememberCameraPositionState
 fun MyMarker(markerPosition: LatLng) {
     Marker(
         state = MarkerState(position = markerPosition),
-        title = "You are here",
+        title = "Marker",
         snippet = markerPosition.latitude.toString()+ " " + markerPosition.longitude.toString(),
         icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)
     )
