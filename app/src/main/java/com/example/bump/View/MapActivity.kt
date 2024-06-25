@@ -58,12 +58,15 @@ class MapActivity: FragmentActivity(),  SensorEventListener {
     private var api: Api = Api()
     private var mSensorManager : SensorManager?= null
     private var mAccelerometer : Sensor?= null
+    var list: List<LatLng?> = listOf()
 
 
-    val markersArrayList = mutableStateOf(listOf<LatLng?>())
+    var markersArrayList = mutableStateOf(listOf<LatLng?>())
     private var isMarkerAdded: Boolean = true
     private var markerPeriod: Long = 5000
+    private var serverReceptionPeriod: Long = 60000
     private var timer: Timer = Timer()
+    private var serverTimer: Timer = Timer()
 
     private var i = 10.0
 
@@ -105,7 +108,15 @@ class MapActivity: FragmentActivity(),  SensorEventListener {
 //                i += 10.0
 
             }
-        }, 0, markerPeriod)
+        }, 500, markerPeriod)
+
+        serverTimer.schedule(object : TimerTask() {
+            override fun run() {
+                api.returnParsed(y.value, x.value, markersArrayList)
+                Log.d("ParsedList1", "Parsed List: ${markersArrayList.value}")
+
+            }
+        }, 500, serverReceptionPeriod)
 
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         super.onCreate(savedInstanceState)
@@ -152,16 +163,16 @@ class MapActivity: FragmentActivity(),  SensorEventListener {
 //                Log.i("olek", x.value.toString())
 //                Log.i("mihal", y.value.toString())
 //                markersArrayList.value = markersArrayList.value + LatLng(mService.getLocX(), mService.getLocY())
-                api.addEntry(x.value.toString(), y.value.toString(), event.values[1].toString())
+                api.addEntry(y.value.toString(), x.value.toString(), event.values[1].toString())
                 {
                         response ->  Log.i("Getting", response)
                 }
                 isMarkerAdded = false;
 
-                api.getAll()
-                {
-                        response ->  Log.i("Entering", response)
-                }
+
+                api.returnParsed(y.value, x.value, markersArrayList)
+
+
             }
             }
 
@@ -205,6 +216,8 @@ class MapActivity: FragmentActivity(),  SensorEventListener {
         unbindService(connection)
         mBound = false
     }
+
+
 
 
 
